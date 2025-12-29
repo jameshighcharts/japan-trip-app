@@ -1,0 +1,162 @@
+"use client";
+
+import { Accommodation } from "@/app/lib/itinerary";
+
+interface AccommodationCardProps {
+  accommodation: Accommodation | string;
+  compact?: boolean;
+}
+
+function HotelIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z" />
+      <path d="M9 7h.01" />
+      <path d="M15 7h.01" />
+      <path d="M9 11h.01" />
+      <path d="M15 11h.01" />
+      <path d="M9 15h.01" />
+      <path d="M15 15h.01" />
+      <path d="M9 19h6" />
+    </svg>
+  );
+}
+
+export default function AccommodationCard({
+  accommodation,
+  compact = false,
+}: AccommodationCardProps) {
+  if (typeof accommodation === "string") {
+    if (compact) {
+      return (
+        <div className="flex items-center gap-2 text-gray-600">
+          <HotelIcon className="w-4 h-4" />
+          <span className="text-sm truncate">{accommodation.replace(" (continued)", "")}</span>
+        </div>
+      );
+    }
+    return (
+      <div className="p-4 bg-gray-50 rounded-2xl">
+        <div className="flex items-center gap-2 text-gray-600 mb-1">
+          <HotelIcon className="w-4 h-4" />
+          <span className="text-xs font-medium uppercase tracking-wider">
+            Accommodation
+          </span>
+        </div>
+        <p className="text-sm text-gray-900">{accommodation}</p>
+      </div>
+    );
+  }
+
+  if (compact) {
+    return (
+      <div className="p-3 bg-gray-50 rounded-xl">
+        <div className="flex items-center gap-2 mb-1">
+          <HotelIcon className="w-4 h-4 text-gray-400" />
+          <span className="text-sm font-medium text-gray-900 truncate">
+            {accommodation.name}
+          </span>
+        </div>
+        {accommodation.nights && (
+          <p className="text-xs text-gray-500 ml-6">
+            {accommodation.nights} night{accommodation.nights > 1 ? "s" : ""}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 bg-gray-50 rounded-2xl">
+      <div className="flex items-center gap-2 text-gray-600 mb-3">
+        <HotelIcon className="w-4 h-4" />
+        <span className="text-xs font-medium uppercase tracking-wider">
+          Accommodation
+        </span>
+      </div>
+
+      <h4 className="text-base font-semibold text-gray-900 mb-2">
+        {accommodation.name}
+      </h4>
+
+      <div className="space-y-2 text-sm">
+        {accommodation.nights && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Duration</span>
+            <span className="text-gray-900 font-medium">
+              {accommodation.nights} night{accommodation.nights > 1 ? "s" : ""}
+            </span>
+          </div>
+        )}
+
+        {accommodation.roomType && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Room</span>
+            <span className="text-gray-900">{accommodation.roomType}</span>
+          </div>
+        )}
+
+        {accommodation.beds && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Beds</span>
+            <span className="text-gray-900">{accommodation.beds}</span>
+          </div>
+        )}
+
+        {accommodation.confirmationNumber && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Confirmation</span>
+            <span className="text-gray-900 font-mono text-xs">
+              {accommodation.confirmationNumber}
+            </span>
+          </div>
+        )}
+
+        {accommodation.pin && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">PIN</span>
+            <span className="text-gray-900 font-mono text-xs">
+              {accommodation.pin}
+            </span>
+          </div>
+        )}
+
+        {accommodation.prepaid !== undefined && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Payment</span>
+            <span
+              className={`${
+                accommodation.prepaid ? "text-emerald-600" : "text-gray-900"
+              }`}
+            >
+              {accommodation.prepaid ? "Prepaid" : "Pay at hotel"}
+            </span>
+          </div>
+        )}
+
+        {accommodation.breakfast !== undefined && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Breakfast</span>
+            <span className="text-gray-900">
+              {accommodation.breakfast ? "Included" : "Not included"}
+            </span>
+          </div>
+        )}
+
+        {accommodation.notes && (
+          <div className="pt-2 mt-2 border-t border-gray-200">
+            <p className="text-xs text-gray-600">{accommodation.notes}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

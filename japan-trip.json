@@ -1,0 +1,174 @@
+{
+  "trip": {
+    "name": "Japan Trip",
+    "startDate": "2024-12-30",
+    "endDate": "2025-01-11",
+    "flightBookingRef": "877HFW"
+  },
+  "itinerary": [
+    {
+      "date": "2024-12-30",
+      "location": "Travel to Tokyo",
+      "transportation": {
+        "type": "flight",
+        "departure": "05:50",
+        "route": "Bergen-Frankfurt-Tokyo"
+      },
+      "accommodation": null
+    },
+    {
+      "date": "2024-12-31",
+      "location": "Tokyo",
+      "transportation": {
+        "type": "arrival",
+        "arrival": "08:45"
+      },
+      "accommodation": {
+        "name": "THE KNOT TOKYO Shinjuku",
+        "bookingSource": "booking.com",
+        "confirmationNumber": "5271410094",
+        "pin": "5285",
+        "roomType": "standard twin",
+        "breakfast": false,
+        "prepaid": true,
+        "nights": 4,
+        "checkIn": "2024-12-31",
+        "checkOut": "2025-01-04",
+        "alternateBooking": {
+          "source": "The Knot hotel directly",
+          "reference": "TDB5F67D7079C",
+          "roomType": "Delux twin room (2 bed, 1.1m wide)",
+          "breakfast": false
+        },
+        "hannaRoom": {
+          "dates": "Jan 3-4",
+          "reference": "6281829896",
+          "pin": "3487"
+        }
+      }
+    },
+    {
+      "date": "2025-01-01",
+      "location": "Tokyo",
+      "transportation": null,
+      "accommodation": "THE KNOT TOKYO Shinjuku (continued)"
+    },
+    {
+      "date": "2025-01-02",
+      "location": "Tokyo",
+      "transportation": null,
+      "accommodation": "THE KNOT TOKYO Shinjuku (continued)"
+    },
+    {
+      "date": "2025-01-03",
+      "location": "Tokyo",
+      "transportation": null,
+      "accommodation": "THE KNOT TOKYO Shinjuku (continued)"
+    },
+    {
+      "date": "2025-01-04",
+      "location": "Furano",
+      "transportation": {
+        "type": "flight",
+        "departure": "12:10",
+        "route": "Tokyo (HND) - Asahikawa",
+        "airline": "Air Do",
+        "notes": "After landing, take local bus to Furano Station (departures: 14:37, 16:27, 17:27, 20:02). Buy ticket on bus. Then take taxi to hotel or use hotel shuttle."
+      },
+      "accommodation": {
+        "name": "Winery Hotel and Condominium HITOHANA",
+        "confirmationNumber": "5769422644",
+        "pin": "3578",
+        "prepaid": true,
+        "nights": 3
+      }
+    },
+    {
+      "date": "2025-01-05",
+      "location": "Furano",
+      "transportation": null,
+      "accommodation": "Winery Hotel and Condominium HITOHANA (continued)"
+    },
+    {
+      "date": "2025-01-06",
+      "location": "Furano",
+      "transportation": null,
+      "accommodation": "Winery Hotel and Condominium HITOHANA (continued)"
+    },
+    {
+      "date": "2025-01-07",
+      "location": "Sapporo",
+      "transportation": {
+        "type": "train",
+        "route": "Furano - Sapporo (via Takikawa)",
+        "operator": "JR Hokkaido",
+        "bookingUrl": "https://www.jrhokkaido.co.jp/global/index.html",
+        "notes": "Take late train to Sapporo after back country skiing"
+      },
+      "accommodation": {
+        "name": "Keio Plaza Hotel Sapporo",
+        "confirmationNumber": "5271440791",
+        "pin": "7870",
+        "prepaid": true,
+        "nights": 1,
+        "beds": 3,
+        "breakfast": false,
+        "notes": "Ski bus next day 7:55am at this hotel to Niseko"
+      }
+    },
+    {
+      "date": "2025-01-08",
+      "location": "Travel to Niseko",
+      "transportation": {
+        "type": "bus",
+        "operator": "Hokkaido Resort Liner",
+        "busNumber": "501A",
+        "departure": "07:55",
+        "arrival": "11:45",
+        "route": "Keio Plaza Hotel Sapporo - Hotel Kanronomori (Niseko)",
+        "ticketReference": "25X01080289",
+        "passengers": 3,
+        "bookingUrl": "https://www.access-n.jp/winter2025/en/skibus/detail/sapporo_rusutsu_niseko.html",
+        "notes": "Hotel to Hotel resort bus directly. No transfer needed."
+      },
+      "accommodation": {
+        "name": "Hotel Kanronomori",
+        "confirmationNumber": "5474627411",
+        "pin": "0750"
+      }
+    },
+    {
+      "date": "2025-01-09",
+      "location": "Niseko",
+      "transportation": null,
+      "accommodation": "Hotel Kanronomori (continued)"
+    },
+    {
+      "date": "2025-01-10",
+      "location": "To Sapporo Airport/CTS",
+      "transportation": {
+        "type": "bus",
+        "departure": "15:50",
+        "route": "Hotel Kanronomori - Keio Plaza Hotel Sapporo area",
+        "ticketReference": "25X01100462"
+      },
+      "accommodation": {
+        "name": "KOKO STAY Chitose (formerly Hotel Wing International Chitose)",
+        "confirmationNumber": "6425332235",
+        "pin": "6015"
+      }
+    },
+    {
+      "date": "2025-01-11",
+      "location": "Return to Bergen",
+      "transportation": {
+        "type": "flight",
+        "departure": "09:30",
+        "arrival": "22:50",
+        "route": "Sapporo CTS (Terminal D) - Tokyo - Frankfurt - Bergen",
+        "notes": "Arrive same day in Bergen"
+      },
+      "accommodation": null
+    }
+  ]
+}
