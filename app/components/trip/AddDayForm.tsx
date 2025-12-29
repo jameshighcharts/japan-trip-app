@@ -39,7 +39,7 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
     e.preventDefault();
 
     if (!date || !location) {
-      alert("Please fill in date and location");
+      alert("Fyll inn dato og sted");
       return;
     }
 
@@ -100,7 +100,7 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Add New Day</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Legg til ny dag</h2>
               <button
                 onClick={onClose}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -115,7 +115,7 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
                 {/* Date */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Date *
+                    Dato *
                   </label>
                   <input
                     type="date"
@@ -129,13 +129,13 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
                 {/* Location */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Location *
+                    Sted *
                   </label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g., Tokyo, Osaka, Kyoto"
+                    placeholder="f.eks. Tokyo, Osaka, Kyoto"
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                     required
                   />
@@ -144,21 +144,25 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
                 {/* Transportation Section */}
                 <div className="pt-4 border-t border-gray-100">
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Transportation (optional)
+                    Transport (valgfritt)
                   </label>
                   <div className="grid grid-cols-3 gap-2 mb-3">
-                    {["flight", "train", "bus"].map((type) => (
+                    {[
+                      { key: "flight", label: "Fly" },
+                      { key: "train", label: "Tog" },
+                      { key: "bus", label: "Buss" },
+                    ].map(({ key, label }) => (
                       <button
-                        key={type}
+                        key={key}
                         type="button"
-                        onClick={() => setTransportType(transportType === type ? "" : type)}
-                        className={`py-2 px-3 rounded-lg text-sm font-medium capitalize transition-colors ${
-                          transportType === type
+                        onClick={() => setTransportType(transportType === key ? "" : key)}
+                        className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                          transportType === key
                             ? "bg-gray-900 text-white"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}
                       >
-                        {type}
+                        {label}
                       </button>
                     ))}
                   </div>
@@ -169,14 +173,14 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
                         type="text"
                         value={transportTime}
                         onChange={(e) => setTransportTime(e.target.value)}
-                        placeholder="Departure time (e.g., 08:30)"
+                        placeholder="Avgangstid (f.eks. 08:30)"
                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                       />
                       <input
                         type="text"
                         value={transportRoute}
                         onChange={(e) => setTransportRoute(e.target.value)}
-                        placeholder="Route (e.g., Tokyo - Osaka)"
+                        placeholder="Rute (f.eks. Tokyo - Osaka)"
                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                       />
                     </div>
@@ -186,14 +190,14 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
                 {/* Accommodation Section */}
                 <div className="pt-4 border-t border-gray-100">
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Accommodation (optional)
+                    Overnatting (valgfritt)
                   </label>
                   <div className="space-y-3">
                     <input
                       type="text"
                       value={accommodationName}
                       onChange={(e) => setAccommodationName(e.target.value)}
-                      placeholder="Hotel name"
+                      placeholder="Hotellnavn"
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                     />
                     {accommodationName && (
@@ -201,7 +205,7 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
                         type="number"
                         value={accommodationNights}
                         onChange={(e) => setAccommodationNights(e.target.value)}
-                        placeholder="Number of nights"
+                        placeholder="Antall netter"
                         min="1"
                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                       />
@@ -215,7 +219,7 @@ export default function AddDayForm({ isOpen, onClose, onAdd }: AddDayFormProps) 
                 type="submit"
                 className="w-full mt-6 py-4 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors"
               >
-                Add Day
+                Legg til dag
               </button>
             </form>
           </motion.div>

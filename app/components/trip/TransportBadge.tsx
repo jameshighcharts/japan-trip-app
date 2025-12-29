@@ -104,18 +104,18 @@ export default function TransportBadge({
     switch (transport.type) {
       case "flight":
         return transport.departure
-          ? `Departs ${transport.departure}`
-          : "Flight";
+          ? `Avgang ${transport.departure}`
+          : "Fly";
       case "arrival":
-        return transport.arrival ? `Arrives ${transport.arrival}` : "Arrival";
+        return transport.arrival ? `Ankomst ${transport.arrival}` : "Ankomst";
       case "train":
         return transport.departure
-          ? `Train ${transport.departure}`
-          : "Train";
+          ? `Tog ${transport.departure}`
+          : "Tog";
       case "bus":
         return transport.departure
-          ? `Bus ${transport.departure}`
-          : "Bus";
+          ? `Buss ${transport.departure}`
+          : "Buss";
       default:
         return transport.type;
     }

@@ -22,7 +22,7 @@ export default function ProgressDots({
               ? "w-6 h-2 bg-gray-900"
               : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
           }`}
-          aria-label={`Go to day ${i + 1}`}
+          aria-label={`Gå til dag ${i + 1}`}
         />
       ))}
     </div>

@@ -160,7 +160,7 @@ export default function Home() {
       <button
         onClick={() => setIsAddFormOpen(true)}
         className="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full shadow-lg hover:bg-gray-800 transition-colors flex items-center justify-center z-30"
-        aria-label="Add new day"
+        aria-label="Legg til ny dag"
       >
         <PlusIcon className="w-6 h-6" />
       </button>

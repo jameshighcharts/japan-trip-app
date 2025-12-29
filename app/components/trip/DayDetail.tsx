@@ -138,7 +138,7 @@ export default function DayDetail({
     const isImage = file.type.startsWith("image/");
 
     if (!isPdf && !isImage) {
-      alert("Please upload a PDF or image file");
+      alert("Last opp en PDF- eller bildefil");
       return;
     }
 
@@ -187,7 +187,7 @@ export default function DayDetail({
           </h2>
           <div className="flex items-center gap-3 mt-2">
             <p className="text-white/70 text-sm">
-              Day {dayNumber} of {totalDays}
+              Dag {dayNumber} av {totalDays}
             </p>
             {locationMapUrl && (
               <a
@@ -200,7 +200,7 @@ export default function DayDetail({
                   <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                Map
+                Kart
               </a>
             )}
           </div>
@@ -212,7 +212,7 @@ export default function DayDetail({
         {day.transportation && (
           <div className="mb-6">
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              Transportation
+              Transport
             </h3>
             <div className="bg-gray-50 rounded-2xl p-4">
               <TransportBadge transport={day.transportation} />
@@ -221,7 +221,7 @@ export default function DayDetail({
               <div className="mt-4 space-y-2 text-sm">
                 {day.transportation.route && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Route</span>
+                    <span className="text-gray-500">Rute</span>
                     <span className="text-gray-900 text-right max-w-[60%]">
                       {day.transportation.route}
                     </span>
@@ -230,7 +230,7 @@ export default function DayDetail({
 
                 {day.transportation.airline && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Airline</span>
+                    <span className="text-gray-500">Flyselskap</span>
                     <span className="text-gray-900">
                       {day.transportation.airline}
                     </span>
@@ -239,7 +239,7 @@ export default function DayDetail({
 
                 {day.transportation.operator && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Operator</span>
+                    <span className="text-gray-500">Operatør</span>
                     <span className="text-gray-900">
                       {day.transportation.operator}
                     </span>
@@ -248,7 +248,7 @@ export default function DayDetail({
 
                 {day.transportation.busNumber && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Bus</span>
+                    <span className="text-gray-500">Buss</span>
                     <span className="text-gray-900 font-mono text-xs">
                       {day.transportation.busNumber}
                     </span>
@@ -257,7 +257,7 @@ export default function DayDetail({
 
                 {day.transportation.ticketReference && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Reference</span>
+                    <span className="text-gray-500">Referanse</span>
                     <span className="text-gray-900 font-mono text-xs">
                       {day.transportation.ticketReference}
                     </span>
@@ -266,7 +266,7 @@ export default function DayDetail({
 
                 {day.transportation.passengers && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Passengers</span>
+                    <span className="text-gray-500">Passasjerer</span>
                     <span className="text-gray-900">
                       {day.transportation.passengers}
                     </span>
@@ -289,7 +289,7 @@ export default function DayDetail({
         {day.accommodation && (
           <div className="mb-6">
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              Where You&apos;re Staying
+              Hvor du bor
             </h3>
             <AccommodationCard accommodation={day.accommodation} />
           </div>
@@ -298,7 +298,7 @@ export default function DayDetail({
         {/* Notes Section */}
         <div className="mb-6">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-            My Notes
+            Mine notater
           </h3>
           <div className="bg-gray-50 rounded-2xl p-4">
             {isEditingNotes ? (
@@ -309,7 +309,7 @@ export default function DayDetail({
                 <textarea
                   value={userData.notes}
                   onChange={(e) => handleNotesChange(e.target.value)}
-                  placeholder="Write your notes for this day..."
+                  placeholder="Skriv dine notater for denne dagen..."
                   className="w-full h-32 bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                   autoFocus
                 />
@@ -317,7 +317,7 @@ export default function DayDetail({
                   onClick={() => setIsEditingNotes(false)}
                   className="mt-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors"
                 >
-                  Done
+                  Ferdig
                 </button>
               </motion.div>
             ) : (
@@ -332,7 +332,7 @@ export default function DayDetail({
                 ) : (
                   <p className="text-sm text-gray-400 flex items-center gap-2">
                     <PlusIcon className="w-4 h-4" />
-                    Tap to add notes...
+                    Trykk for å legge til notater...
                   </p>
                 )}
               </div>
@@ -343,7 +343,7 @@ export default function DayDetail({
         {/* Attachments Section */}
         <div className="mb-6">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-            Photos & Documents
+            Bilder og dokumenter
           </h3>
           <div className="space-y-2">
             {/* Image Grid */}
@@ -398,7 +398,7 @@ export default function DayDetail({
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {attachment.name}
                       </p>
-                      <p className="text-xs text-gray-500">PDF Document</p>
+                      <p className="text-xs text-gray-500">PDF-dokument</p>
                     </div>
                   </a>
                   <button
@@ -430,7 +430,7 @@ export default function DayDetail({
                 className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-gray-300 hover:text-gray-600 transition-colors"
               >
                 <CameraIcon className="w-5 h-5" />
-                <span className="text-sm font-medium">Photo</span>
+                <span className="text-sm font-medium">Bilde</span>
               </button>
               <button
                 onClick={() => {

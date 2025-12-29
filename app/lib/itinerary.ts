@@ -63,7 +63,7 @@ export interface TripData {
 
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("nb-NO", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -72,7 +72,7 @@ export function formatDate(dateString: string): string {
 
 export function formatFullDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("nb-NO", {
     weekday: "long",
     month: "long",
     day: "numeric",

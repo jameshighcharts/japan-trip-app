@@ -61,7 +61,7 @@ export default function DayCard({ day, dayNumber, totalDays }: DayCardProps) {
       <div className="p-5">
         {/* Day Counter */}
         <p className="text-sm text-gray-400 mb-4">
-          Day {dayNumber} of {totalDays}
+          Dag {dayNumber} av {totalDays}
         </p>
 
         {/* Transportation */}
@@ -88,7 +88,7 @@ export default function DayCard({ day, dayNumber, totalDays }: DayCardProps) {
 
         {/* CTA */}
         <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
-          <p className="text-sm text-gray-400">Tap for details</p>
+          <p className="text-sm text-gray-400">Trykk for detaljer</p>
           <ChevronRightIcon className="w-5 h-5 text-gray-300" />
         </div>
       </div>

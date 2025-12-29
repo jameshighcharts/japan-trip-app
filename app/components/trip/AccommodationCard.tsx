@@ -74,7 +74,7 @@ export default function AccommodationCard({
         <div className="flex items-center gap-2 text-gray-600 mb-1">
           <HotelIcon className="w-4 h-4" />
           <span className="text-xs font-medium uppercase tracking-wider">
-            Accommodation
+            Overnatting
           </span>
         </div>
         <p className="text-sm text-gray-900">{accommodation}</p>
@@ -93,7 +93,7 @@ export default function AccommodationCard({
         </div>
         {accommodation.nights && (
           <p className="text-xs text-gray-500 ml-6">
-            {accommodation.nights} night{accommodation.nights > 1 ? "s" : ""}
+            {accommodation.nights} natt{accommodation.nights > 1 ? "er" : ""}
           </p>
         )}
       </div>
@@ -122,37 +122,37 @@ export default function AccommodationCard({
           className="inline-flex items-center gap-1.5 px-3 py-1.5 mb-3 bg-blue-50 text-blue-600 text-xs font-medium rounded-lg hover:bg-blue-100 transition-colors"
         >
           <MapPinIcon className="w-3.5 h-3.5" />
-          Open in Google Maps
+          Åpne i Google Maps
         </a>
       )}
 
       <div className="space-y-2 text-sm">
         {accommodation.nights && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Duration</span>
+            <span className="text-gray-500">Varighet</span>
             <span className="text-gray-900 font-medium">
-              {accommodation.nights} night{accommodation.nights > 1 ? "s" : ""}
+              {accommodation.nights} natt{accommodation.nights > 1 ? "er" : ""}
             </span>
           </div>
         )}
 
         {accommodation.roomType && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Room</span>
+            <span className="text-gray-500">Rom</span>
             <span className="text-gray-900">{accommodation.roomType}</span>
           </div>
         )}
 
         {accommodation.beds && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Beds</span>
+            <span className="text-gray-500">Senger</span>
             <span className="text-gray-900">{accommodation.beds}</span>
           </div>
         )}
 
         {accommodation.confirmationNumber && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Confirmation</span>
+            <span className="text-gray-500">Bekreftelse</span>
             <span className="text-gray-900 font-mono text-xs">
               {accommodation.confirmationNumber}
             </span>
@@ -170,22 +170,22 @@ export default function AccommodationCard({
 
         {accommodation.prepaid !== undefined && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Payment</span>
+            <span className="text-gray-500">Betaling</span>
             <span
               className={`${
                 accommodation.prepaid ? "text-emerald-600" : "text-gray-900"
               }`}
             >
-              {accommodation.prepaid ? "Prepaid" : "Pay at hotel"}
+              {accommodation.prepaid ? "Forhåndsbetalt" : "Betal på hotellet"}
             </span>
           </div>
         )}
 
         {accommodation.breakfast !== undefined && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Breakfast</span>
+            <span className="text-gray-500">Frokost</span>
             <span className="text-gray-900">
-              {accommodation.breakfast ? "Included" : "Not included"}
+              {accommodation.breakfast ? "Inkludert" : "Ikke inkludert"}
             </span>
           </div>
         )}

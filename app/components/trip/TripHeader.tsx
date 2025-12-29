@@ -19,11 +19,11 @@ export default function TripHeader({
   const formatDateRange = () => {
     const start = new Date(trip.startDate);
     const end = new Date(trip.endDate);
-    const startStr = start.toLocaleDateString("en-US", {
+    const startStr = start.toLocaleDateString("nb-NO", {
       month: "short",
       day: "numeric",
     });
-    const endStr = end.toLocaleDateString("en-US", {
+    const endStr = end.toLocaleDateString("nb-NO", {
       month: "short",
       day: "numeric",
     });
