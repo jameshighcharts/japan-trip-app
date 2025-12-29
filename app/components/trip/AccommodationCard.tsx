@@ -1,6 +1,6 @@
 "use client";
 
-import { Accommodation } from "@/app/lib/itinerary";
+import { Accommodation, getAccommodationMapUrl } from "@/app/lib/itinerary";
 
 interface AccommodationCardProps {
   accommodation: Accommodation | string;
@@ -30,16 +30,42 @@ function HotelIcon({ className }: { className?: string }) {
   );
 }
 
+function MapPinIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
 export default function AccommodationCard({
   accommodation,
   compact = false,
 }: AccommodationCardProps) {
+  const getName = () => {
+    if (typeof accommodation === "string") {
+      return accommodation.replace(" (continued)", "");
+    }
+    return accommodation.name;
+  };
+
+  const mapUrl = getAccommodationMapUrl(getName());
+
   if (typeof accommodation === "string") {
     if (compact) {
       return (
         <div className="flex items-center gap-2 text-gray-600">
           <HotelIcon className="w-4 h-4" />
-          <span className="text-sm truncate">{accommodation.replace(" (continued)", "")}</span>
+          <span className="text-sm truncate">{getName()}</span>
         </div>
       );
     }
@@ -86,6 +112,19 @@ export default function AccommodationCard({
       <h4 className="text-base font-semibold text-gray-900 mb-2">
         {accommodation.name}
       </h4>
+
+      {/* Google Maps Link */}
+      {mapUrl && (
+        <a
+          href={mapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 mb-3 bg-blue-50 text-blue-600 text-xs font-medium rounded-lg hover:bg-blue-100 transition-colors"
+        >
+          <MapPinIcon className="w-3.5 h-3.5" />
+          Open in Google Maps
+        </a>
+      )}
 
       <div className="space-y-2 text-sm">
         {accommodation.nights && (

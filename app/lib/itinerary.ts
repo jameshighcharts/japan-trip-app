@@ -95,6 +95,42 @@ export function getTransportIcon(type: string): string {
   }
 }
 
+// Google Maps links for accommodations
+export const accommodationMaps: Record<string, string> = {
+  "THE KNOT TOKYO Shinjuku": "https://maps.google.com/?q=4-31-1+Nishi-shinjuku,+Shinjuku-ku+Tokyo,+160-0023,+Japan",
+  "Winery Hotel and Condominium HITOHANA": "https://maps.google.com/?q=23-10+Kitanomine,+Furano,+Hokkaido+076-0034,+Japan",
+  "Keio Plaza Hotel Sapporo": "https://maps.google.com/?q=2-1+North+5+West+7,+Chuo-ku,+Sapporo,+Hokkaido+060-0005,+Japan",
+  "Hotel Kanronomori": "https://maps.google.com/?q=415+Niseko,+Niseko-cho,+Abuta-gun,+Hokkaido+048-1511,+Japan",
+  "KOKO STAY Chitose (formerly Hotel Wing International Chitose)": "https://maps.google.com/?q=2-2-10+Chiyoda-cho,+Chitose,+Hokkaido,+Japan",
+};
+
+// Location Google Maps links
+export const locationMaps: Record<string, string> = {
+  "Tokyo": "https://maps.google.com/?q=Shinjuku,+Tokyo,+Japan",
+  "Tykyo": "https://maps.google.com/?q=Shinjuku,+Tokyo,+Japan",
+  "Furano": "https://maps.google.com/?q=Furano,+Hokkaido,+Japan",
+  "Sapporo": "https://maps.google.com/?q=Sapporo,+Hokkaido,+Japan",
+  "Niseko": "https://maps.google.com/?q=Niseko,+Hokkaido,+Japan",
+};
+
+export function getAccommodationMapUrl(name: string): string | null {
+  for (const [key, url] of Object.entries(accommodationMaps)) {
+    if (name.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(name.toLowerCase())) {
+      return url;
+    }
+  }
+  return null;
+}
+
+export function getLocationMapUrl(location: string): string | null {
+  for (const [key, url] of Object.entries(locationMaps)) {
+    if (location.toLowerCase().includes(key.toLowerCase())) {
+      return url;
+    }
+  }
+  return `https://maps.google.com/?q=${encodeURIComponent(location)},+Japan`;
+}
+
 // Beautiful location photos from Unsplash
 export const locationPhotos: Record<string, string> = {
   "Tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",

@@ -6,6 +6,7 @@ import {
   ItineraryDay,
   formatFullDate,
   getLocationPhoto,
+  getLocationMapUrl,
   DayUserData,
   Attachment,
 } from "@/app/lib/itinerary";
@@ -116,6 +117,7 @@ export default function DayDetail({
   onUpdateUserData,
 }: DayDetailProps) {
   const photoUrl = getLocationPhoto(day.location);
+  const locationMapUrl = getLocationMapUrl(day.location);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -183,9 +185,25 @@ export default function DayDetail({
           <h2 className="text-3xl font-bold text-white tracking-tight">
             {day.location}
           </h2>
-          <p className="text-white/70 text-sm mt-1">
-            Day {dayNumber} of {totalDays}
-          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <p className="text-white/70 text-sm">
+              Day {dayNumber} of {totalDays}
+            </p>
+            {locationMapUrl && (
+              <a
+                href={locationMapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-full hover:bg-white/30 transition-colors"
+              >
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                Map
+              </a>
+            )}
+          </div>
         </div>
       </div>
 

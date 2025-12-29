@@ -14,6 +14,22 @@ interface DayDetailSheetProps {
   onUpdateUserData: (data: DayUserData) => void;
 }
 
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
 export default function DayDetailSheet({
   isOpen,
   onClose,
@@ -61,13 +77,21 @@ export default function DayDetailSheet({
               boxShadow: "0 -10px 40px -10px rgba(0, 0, 0, 0.1)",
             }}
           >
-            {/* Drag Handle */}
-            <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing bg-white sticky top-0 z-10">
-              <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+            {/* Header with drag handle and close button */}
+            <div className="flex items-center justify-between px-4 py-3 bg-white sticky top-0 z-10 border-b border-gray-100">
+              <div className="w-10" /> {/* Spacer */}
+              <div className="w-12 h-1.5 bg-gray-300 rounded-full cursor-grab active:cursor-grabbing" />
+              <button
+                onClick={onClose}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                aria-label="Close"
+              >
+                <XIcon className="w-5 h-5 text-gray-600" />
+              </button>
             </div>
 
             {/* Scrollable Content */}
-            <div className="overflow-y-auto max-h-[calc(90vh-28px)] scrollbar-hide">
+            <div className="overflow-y-auto max-h-[calc(90vh-52px)] scrollbar-hide">
               <DayDetail
                 day={day}
                 dayNumber={dayNumber}
