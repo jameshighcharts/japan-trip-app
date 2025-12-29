@@ -105,13 +105,14 @@ export default function Home() {
 
           setCustomDays(cloudDays);
 
-          // Merge cloud notes with local attachments (attachments only stored locally)
+          // Merge cloud data (cloud wins, includes attachments now)
           setUserDataMap((prev) => {
             const merged: Record<string, DayUserData> = { ...prev };
             for (const [date, cloudData] of Object.entries(cloudUserData)) {
+              const cloud = cloudData as DayUserData;
               merged[date] = {
-                notes: (cloudData as DayUserData).notes || merged[date]?.notes || "",
-                attachments: merged[date]?.attachments || [], // Keep local attachments
+                notes: cloud.notes || merged[date]?.notes || "",
+                attachments: cloud.attachments?.length > 0 ? cloud.attachments : (merged[date]?.attachments || []),
               };
             }
             return merged;
@@ -129,15 +130,7 @@ export default function Home() {
     // Save to localStorage immediately (includes attachments)
     saveToLocal(days, userData);
 
-    // Strip attachments for MongoDB sync (too large for Vercel's 4.5MB limit)
-    // Attachments stay in localStorage only
-    const userDataForCloud: Record<string, DayUserData> = {};
-    for (const [date, data] of Object.entries(userData)) {
-      userDataForCloud[date] = {
-        notes: data.notes,
-        attachments: [], // Don't sync attachments to cloud
-      };
-    }
+    // Attachments now use Vercel Blob URLs (not base64), so they can sync to MongoDB
 
     // Sync to MongoDB in background
     setIsSyncing(true);
@@ -148,7 +141,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customDays: days,
-          userDataMap: userDataForCloud,
+          userDataMap: userData,
         }),
       });
       if (!res.ok) throw new Error("Save failed");

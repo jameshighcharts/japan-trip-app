@@ -121,6 +121,7 @@ export default function DayDetail({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Ensure attachments array exists (migration from old pdfs format)
   const attachments = userData.attachments || [];
@@ -129,7 +130,7 @@ export default function DayDetail({
     onUpdateUserData({ ...userData, notes });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -142,20 +143,34 @@ export default function DayDetail({
       return;
     }
 
-    // Check file size (limit to 5MB for localStorage)
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Filen er for stor. Maks 5MB.");
+    // Check file size (limit to 50MB for Vercel Blob)
+    if (file.size > 50 * 1024 * 1024) {
+      alert("Filen er for stor. Maks 50MB.");
       return;
     }
 
-    // Convert to base64 for persistence in localStorage
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64Url = reader.result as string;
+    setIsUploading(true);
+
+    try {
+      // Upload to Vercel Blob
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const { url, name } = await res.json();
+
       const newAttachment: Attachment = {
         id: Date.now().toString(),
-        name: file.name,
-        url: base64Url,
+        name: name,
+        url: url,
         type: isPdf ? "pdf" : "image",
         addedAt: new Date().toISOString(),
       };
@@ -164,12 +179,15 @@ export default function DayDetail({
         ...userData,
         attachments: [...attachments, newAttachment],
       });
-    };
-    reader.readAsDataURL(file);
-
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Kunne ikke laste opp filen. Prøv igjen.");
+    } finally {
+      setIsUploading(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -427,35 +445,43 @@ export default function DayDetail({
               accept="application/pdf,image/*"
               onChange={handleFileUpload}
               className="hidden"
+              disabled={isUploading}
             />
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  if (fileInputRef.current) {
-                    fileInputRef.current.accept = "image/*";
-                    fileInputRef.current.capture = "environment";
-                    fileInputRef.current.click();
-                  }
-                }}
-                className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-gray-300 hover:text-gray-600 transition-colors"
-              >
-                <CameraIcon className="w-5 h-5" />
-                <span className="text-sm font-medium">Bilde</span>
-              </button>
-              <button
-                onClick={() => {
-                  if (fileInputRef.current) {
-                    fileInputRef.current.accept = "application/pdf";
-                    fileInputRef.current.removeAttribute("capture");
-                    fileInputRef.current.click();
-                  }
-                }}
-                className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-gray-300 hover:text-gray-600 transition-colors"
-              >
-                <FileIcon className="w-5 h-5" />
-                <span className="text-sm font-medium">PDF</span>
-              </button>
-            </div>
+            {isUploading ? (
+              <div className="flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-xl">
+                <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                <span className="text-sm text-gray-500">Laster opp...</span>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.accept = "image/*";
+                      fileInputRef.current.capture = "environment";
+                      fileInputRef.current.click();
+                    }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-gray-300 hover:text-gray-600 transition-colors"
+                >
+                  <CameraIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium">Bilde</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.accept = "application/pdf";
+                      fileInputRef.current.removeAttribute("capture");
+                      fileInputRef.current.click();
+                    }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-gray-300 hover:text-gray-600 transition-colors"
+                >
+                  <FileIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium">PDF</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
