@@ -142,20 +142,30 @@ export default function DayDetail({
       return;
     }
 
-    // Create a local URL for the file
-    const url = URL.createObjectURL(file);
-    const newAttachment: Attachment = {
-      id: Date.now().toString(),
-      name: file.name,
-      url,
-      type: isPdf ? "pdf" : "image",
-      addedAt: new Date().toISOString(),
-    };
+    // Check file size (limit to 5MB for localStorage)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Filen er for stor. Maks 5MB.");
+      return;
+    }
 
-    onUpdateUserData({
-      ...userData,
-      attachments: [...attachments, newAttachment],
-    });
+    // Convert to base64 for persistence in localStorage
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Url = reader.result as string;
+      const newAttachment: Attachment = {
+        id: Date.now().toString(),
+        name: file.name,
+        url: base64Url,
+        type: isPdf ? "pdf" : "image",
+        addedAt: new Date().toISOString(),
+      };
+
+      onUpdateUserData({
+        ...userData,
+        attachments: [...attachments, newAttachment],
+      });
+    };
+    reader.readAsDataURL(file);
 
     // Reset input
     if (fileInputRef.current) {

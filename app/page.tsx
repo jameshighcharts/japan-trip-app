@@ -115,7 +115,18 @@ export default function Home() {
   };
 
   const handleAddDay = (newDay: ItineraryDay) => {
-    setCustomDays((prev) => [...prev, newDay]);
+    setCustomDays((prev) => {
+      const updated = [...prev, newDay];
+      // Calculate new position after sorting
+      const allSorted = [...initialData.itinerary, ...updated].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+      const newIndex = allSorted.findIndex((d) => d.date === newDay.date);
+      if (newIndex !== -1) {
+        setCurrentDay(newIndex);
+      }
+      return updated;
+    });
     // Initialize user data for new day
     setUserDataMap((prev) => ({
       ...prev,
