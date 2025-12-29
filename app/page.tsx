@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import tripData from "@/japan-trip.json";
 import { TripData, ItineraryDay, DayUserData } from "@/app/lib/itinerary";
 import TripHeader from "@/app/components/trip/TripHeader";
@@ -9,37 +9,6 @@ import DayDetailSheet from "@/app/components/trip/DayDetailSheet";
 import AddDayForm from "@/app/components/trip/AddDayForm";
 
 const initialData = tripData as TripData;
-
-// Initialize empty user data for each day
-const initializeUserData = (days: ItineraryDay[]): Record<string, DayUserData> => {
-  const stored = typeof window !== "undefined" ? localStorage.getItem("tripUserData") : null;
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      // Invalid stored data, start fresh
-    }
-  }
-
-  const initial: Record<string, DayUserData> = {};
-  days.forEach((day) => {
-    initial[day.date] = { notes: "", attachments: [] };
-  });
-  return initial;
-};
-
-// Load custom days from localStorage
-const loadCustomDays = (): ItineraryDay[] => {
-  const stored = typeof window !== "undefined" ? localStorage.getItem("customDays") : null;
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return [];
-    }
-  }
-  return [];
-};
 
 function PlusIcon({ className }: { className?: string }) {
   return (
@@ -57,6 +26,23 @@ function PlusIcon({ className }: { className?: string }) {
   );
 }
 
+function CloudIcon({ className, syncing }: { className?: string; syncing?: boolean }) {
+  return (
+    <svg
+      className={`${className} ${syncing ? "animate-pulse" : ""}`}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+      {syncing && <path d="M12 13v4M12 17l-2-2M12 17l2-2" />}
+    </svg>
+  );
+}
+
 export default function Home() {
   const [currentDay, setCurrentDay] = useState(0);
   const [selectedDay, setSelectedDay] = useState<ItineraryDay | null>(null);
@@ -64,34 +50,83 @@ export default function Home() {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [userDataMap, setUserDataMap] = useState<Record<string, DayUserData>>({});
   const [customDays, setCustomDays] = useState<ItineraryDay[]>([]);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialLoad = useRef(true);
 
   // Combine initial data with custom days
   const allDays = [...initialData.itinerary, ...customDays].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  // Initialize on client side only
+  // Load data from MongoDB on mount
   useEffect(() => {
-    const custom = loadCustomDays();
-    setCustomDays(custom);
-    setUserDataMap(initializeUserData([...initialData.itinerary, ...custom]));
-    setIsHydrated(true);
+    async function loadData() {
+      try {
+        const res = await fetch("/api/trip");
+        if (res.ok) {
+          const data = await res.json();
+          setCustomDays(data.customDays || []);
+
+          // Merge loaded data with initial empty state for all days
+          const initial: Record<string, DayUserData> = {};
+          initialData.itinerary.forEach((day) => {
+            initial[day.date] = { notes: "", attachments: [] };
+          });
+          (data.customDays || []).forEach((day: ItineraryDay) => {
+            initial[day.date] = { notes: "", attachments: [] };
+          });
+
+          setUserDataMap({ ...initial, ...(data.userDataMap || {}) });
+        }
+      } catch (error) {
+        console.error("Failed to load data:", error);
+      } finally {
+        setIsLoading(false);
+        isInitialLoad.current = false;
+      }
+    }
+    loadData();
   }, []);
 
-  // Save to localStorage whenever userData changes
-  useEffect(() => {
-    if (isHydrated && Object.keys(userDataMap).length > 0) {
-      localStorage.setItem("tripUserData", JSON.stringify(userDataMap));
+  // Save to MongoDB with debounce
+  const saveToDb = useCallback(async (days: ItineraryDay[], userData: Record<string, DayUserData>) => {
+    setIsSyncing(true);
+    try {
+      await fetch("/api/trip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customDays: days,
+          userDataMap: userData,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to save:", error);
+    } finally {
+      setIsSyncing(false);
     }
-  }, [userDataMap, isHydrated]);
+  }, []);
 
-  // Save custom days to localStorage
+  // Debounced save when data changes
   useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem("customDays", JSON.stringify(customDays));
+    if (isInitialLoad.current || isLoading) return;
+
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
-  }, [customDays, isHydrated]);
+
+    saveTimeoutRef.current = setTimeout(() => {
+      saveToDb(customDays, userDataMap);
+    }, 1000); // Save 1 second after last change
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [customDays, userDataMap, saveToDb, isLoading]);
 
   const handleDaySelect = (day: ItineraryDay, index: number) => {
     setSelectedDay(day);
@@ -139,7 +174,7 @@ export default function Home() {
     return userDataMap[selectedDay.date] || { notes: "", attachments: [] };
   };
 
-  if (!isHydrated) {
+  if (isLoading) {
     return (
       <div className="min-h-dvh bg-white flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
@@ -156,6 +191,14 @@ export default function Home() {
         totalDays={allDays.length}
         onDotClick={handleDotClick}
       />
+
+      {/* Sync indicator */}
+      <div className="fixed top-4 right-4 z-50">
+        <CloudIcon
+          className={`w-5 h-5 transition-colors ${isSyncing ? "text-blue-500" : "text-gray-300"}`}
+          syncing={isSyncing}
+        />
+      </div>
 
       {/* Main content - Card Stack */}
       <main className="flex-1 flex items-center justify-center pt-28 pb-8 px-4">
