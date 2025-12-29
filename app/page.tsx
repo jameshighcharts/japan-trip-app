@@ -100,15 +100,22 @@ export default function Home() {
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
         if (data && (data.customDays?.length > 0 || Object.keys(data.userDataMap || {}).length > 0)) {
-          // Merge cloud data with local (cloud wins for conflicts)
           const cloudDays = data.customDays || [];
           const cloudUserData = data.userDataMap || {};
 
           setCustomDays(cloudDays);
-          setUserDataMap((prev) => ({ ...prev, ...cloudUserData }));
 
-          // Update local cache
-          saveToLocal(cloudDays, { ...initial, ...cloudUserData });
+          // Merge cloud notes with local attachments (attachments only stored locally)
+          setUserDataMap((prev) => {
+            const merged: Record<string, DayUserData> = { ...prev };
+            for (const [date, cloudData] of Object.entries(cloudUserData)) {
+              merged[date] = {
+                notes: (cloudData as DayUserData).notes || merged[date]?.notes || "",
+                attachments: merged[date]?.attachments || [], // Keep local attachments
+              };
+            }
+            return merged;
+          });
         }
       })
       .catch((err) => {
@@ -119,8 +126,18 @@ export default function Home() {
 
   // Save to both localStorage (instant) and MongoDB (background)
   const saveData = useCallback(async (days: ItineraryDay[], userData: Record<string, DayUserData>) => {
-    // Save to localStorage immediately
+    // Save to localStorage immediately (includes attachments)
     saveToLocal(days, userData);
+
+    // Strip attachments for MongoDB sync (too large for Vercel's 4.5MB limit)
+    // Attachments stay in localStorage only
+    const userDataForCloud: Record<string, DayUserData> = {};
+    for (const [date, data] of Object.entries(userData)) {
+      userDataForCloud[date] = {
+        notes: data.notes,
+        attachments: [], // Don't sync attachments to cloud
+      };
+    }
 
     // Sync to MongoDB in background
     setIsSyncing(true);
@@ -131,7 +148,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customDays: days,
-          userDataMap: userData,
+          userDataMap: userDataForCloud,
         }),
       });
       if (!res.ok) throw new Error("Save failed");
