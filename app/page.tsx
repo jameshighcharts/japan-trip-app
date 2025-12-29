@@ -10,6 +10,24 @@ import AddDayForm from "@/app/components/trip/AddDayForm";
 
 const initialData = tripData as TripData;
 
+// localStorage helpers for fast loading
+const loadFromLocal = () => {
+  if (typeof window === "undefined") return { customDays: [], userDataMap: {} };
+  try {
+    const customDays = JSON.parse(localStorage.getItem("customDays") || "[]");
+    const userDataMap = JSON.parse(localStorage.getItem("tripUserData") || "{}");
+    return { customDays, userDataMap };
+  } catch {
+    return { customDays: [], userDataMap: {} };
+  }
+};
+
+const saveToLocal = (customDays: ItineraryDay[], userDataMap: Record<string, DayUserData>) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("customDays", JSON.stringify(customDays));
+  localStorage.setItem("tripUserData", JSON.stringify(userDataMap));
+};
+
 function PlusIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -26,7 +44,7 @@ function PlusIcon({ className }: { className?: string }) {
   );
 }
 
-function CloudIcon({ className, syncing }: { className?: string; syncing?: boolean }) {
+function CloudIcon({ className, syncing, error }: { className?: string; syncing?: boolean; error?: boolean }) {
   return (
     <svg
       className={`${className} ${syncing ? "animate-pulse" : ""}`}
@@ -38,7 +56,7 @@ function CloudIcon({ className, syncing }: { className?: string; syncing?: boole
       strokeLinejoin="round"
     >
       <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-      {syncing && <path d="M12 13v4M12 17l-2-2M12 17l2-2" />}
+      {error && <path d="M12 8v4M12 16h.01" />}
     </svg>
   );
 }
@@ -50,51 +68,65 @@ export default function Home() {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [userDataMap, setUserDataMap] = useState<Record<string, DayUserData>>({});
   const [customDays, setCustomDays] = useState<ItineraryDay[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isInitialLoad = useRef(true);
 
   // Combine initial data with custom days
   const allDays = [...initialData.itinerary, ...customDays].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  // Load data from MongoDB on mount
+  // Initialize from localStorage immediately (fast)
   useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await fetch("/api/trip");
-        if (res.ok) {
-          const data = await res.json();
-          setCustomDays(data.customDays || []);
+    const local = loadFromLocal();
 
-          // Merge loaded data with initial empty state for all days
-          const initial: Record<string, DayUserData> = {};
-          initialData.itinerary.forEach((day) => {
-            initial[day.date] = { notes: "", attachments: [] };
-          });
-          (data.customDays || []).forEach((day: ItineraryDay) => {
-            initial[day.date] = { notes: "", attachments: [] };
-          });
+    // Initialize empty state for all days
+    const initial: Record<string, DayUserData> = {};
+    initialData.itinerary.forEach((day) => {
+      initial[day.date] = { notes: "", attachments: [] };
+    });
+    local.customDays.forEach((day: ItineraryDay) => {
+      initial[day.date] = { notes: "", attachments: [] };
+    });
 
-          setUserDataMap({ ...initial, ...(data.userDataMap || {}) });
+    setCustomDays(local.customDays);
+    setUserDataMap({ ...initial, ...local.userDataMap });
+    setIsHydrated(true);
+
+    // Then sync from MongoDB in background (don't block UI)
+    fetch("/api/trip")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data && (data.customDays?.length > 0 || Object.keys(data.userDataMap || {}).length > 0)) {
+          // Merge cloud data with local (cloud wins for conflicts)
+          const cloudDays = data.customDays || [];
+          const cloudUserData = data.userDataMap || {};
+
+          setCustomDays(cloudDays);
+          setUserDataMap((prev) => ({ ...prev, ...cloudUserData }));
+
+          // Update local cache
+          saveToLocal(cloudDays, { ...initial, ...cloudUserData });
         }
-      } catch (error) {
-        console.error("Failed to load data:", error);
-      } finally {
-        setIsLoading(false);
-        isInitialLoad.current = false;
-      }
-    }
-    loadData();
+      })
+      .catch((err) => {
+        console.error("Failed to sync from cloud:", err);
+        setSyncError(true);
+      });
   }, []);
 
-  // Save to MongoDB with debounce
-  const saveToDb = useCallback(async (days: ItineraryDay[], userData: Record<string, DayUserData>) => {
+  // Save to both localStorage (instant) and MongoDB (background)
+  const saveData = useCallback(async (days: ItineraryDay[], userData: Record<string, DayUserData>) => {
+    // Save to localStorage immediately
+    saveToLocal(days, userData);
+
+    // Sync to MongoDB in background
     setIsSyncing(true);
+    setSyncError(false);
     try {
-      await fetch("/api/trip", {
+      const res = await fetch("/api/trip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,8 +134,10 @@ export default function Home() {
           userDataMap: userData,
         }),
       });
+      if (!res.ok) throw new Error("Save failed");
     } catch (error) {
-      console.error("Failed to save:", error);
+      console.error("Failed to sync to cloud:", error);
+      setSyncError(true);
     } finally {
       setIsSyncing(false);
     }
@@ -111,22 +145,22 @@ export default function Home() {
 
   // Debounced save when data changes
   useEffect(() => {
-    if (isInitialLoad.current || isLoading) return;
+    if (!isHydrated) return;
 
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
     saveTimeoutRef.current = setTimeout(() => {
-      saveToDb(customDays, userDataMap);
-    }, 1000); // Save 1 second after last change
+      saveData(customDays, userDataMap);
+    }, 500); // Save 500ms after last change
 
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [customDays, userDataMap, saveToDb, isLoading]);
+  }, [customDays, userDataMap, saveData, isHydrated]);
 
   const handleDaySelect = (day: ItineraryDay, index: number) => {
     setSelectedDay(day);
@@ -174,7 +208,7 @@ export default function Home() {
     return userDataMap[selectedDay.date] || { notes: "", attachments: [] };
   };
 
-  if (isLoading) {
+  if (!isHydrated) {
     return (
       <div className="min-h-dvh bg-white flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
@@ -195,8 +229,11 @@ export default function Home() {
       {/* Sync indicator */}
       <div className="fixed top-4 right-4 z-50">
         <CloudIcon
-          className={`w-5 h-5 transition-colors ${isSyncing ? "text-blue-500" : "text-gray-300"}`}
+          className={`w-5 h-5 transition-colors ${
+            syncError ? "text-red-500" : isSyncing ? "text-blue-500" : "text-green-500"
+          }`}
           syncing={isSyncing}
+          error={syncError}
         />
       </div>
 
