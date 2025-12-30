@@ -161,11 +161,13 @@ export default function DayDetail({
         body: formData,
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Upload failed");
+        throw new Error(data.error || "Upload failed");
       }
 
-      const { url, name } = await res.json();
+      const { url, name } = data;
 
       const newAttachment: Attachment = {
         id: Date.now().toString(),
